@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketsFinder — поиск ответов на билеты</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .search-shadow { box-shadow: 0 4px 30px rgba(0, 113, 227, 0.15); }
+        .ticket-card { transition: all 0.3s ease; }
+        .ticket-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-primary-light min-h-screen font-sans antialiased">
+    <section class="relative overflow-hidden min-h-screen flex flex-col justify-center items-center">
+        <div class="max-w-2xl w-full mx-auto text-center fade-in">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Поиск ответа на билет</h1>
+            <div class="bg-white rounded-2xl p-2 search-shadow max-w-xl mx-auto mb-8">
+                <div class="flex">
+                    <input type="text" id="searchInput" placeholder="Введите номер билета или ключевые слова..." class="w-full px-5 py-4 rounded-xl border-0 focus:ring-2 focus:ring-blue-500 text-gray-700">
+                    <button id="searchButton" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-medium transition">Найти</button>
+                </div>
+            </div>
+            <div id="resultsSection" class="hidden mt-6">
+                <div class="mb-4 text-lg text-gray-700">Найдено <span id="resultsCount">0</span> ответов</div>
+                <div class="grid gap-4" id="resultsGrid"></div>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let ticketsData = [];
+            fetch('tickets.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Универсальная поддержка разных форматов JSON (старый и новый)
+                    if (Array.isArray(data)) {
+                        // Новый формат: [{id, question, answer}]
+                        ticketsData = data.map(t => ({
+                            'Вопрос': t.question || t["Вопрос"] || '',
+                            'Ответ': t.answer || t["Ответ"] || '',
+                            '№': t.id || t["№"] || ''
+                        }));
+                    } else {
+                        ticketsData = [];
+                    }
+                });
+            const searchButton = document.getElementById('searchButton');
+            const searchInput = document.getElementById('searchInput');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            function renderResults(results) {
+                resultsGrid.innerHTML = '';
+                if (results.length === 0) {
+                    resultsGrid.innerHTML = '<div class="text-gray-500">Ничего не найдено</div>';
+                } else {
+                    results.forEach(ticket => {
+                        const card = document.createElement('div');
+                        card.className = 'ticket-card bg-white rounded-2xl p-6 text-left fade-in';
+                        card.innerHTML = `<div class='mb-2'><b>Вопрос:</b> ${ticket["Вопрос"] || ''}</div><div><b>Ответ:</b> ${ticket["Ответ"] || ''}</div>`;
+                        resultsGrid.appendChild(card);
+                    });
+                }
+                document.getElementById('resultsCount').textContent = results.length;
+                resultsSection.classList.remove('hidden');
+            }
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) return;
+                let found = [];
+                if (query.includes('#') || query.includes('TB-') || /^\d+$/.test(query)) {
+                    let num = query.replace(/[^\d]/g, '');
+                    found = ticketsData.filter(t => String(t["№"]).replace(/[^\d]/g, '') === num);
+                } else {
+                    found = ticketsData.filter(t =>
+                        (t["Вопрос"] && t["Вопрос"].toLowerCase().includes(query.toLowerCase())) ||
+                        (t["Ответ"] && t["Ответ"].toLowerCase().includes(query.toLowerCase()))
+                    );
+                }
+                renderResults(found);
+            }
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') performSearch(); });
+        });
+    </script>
+</body>
+</html>
+<!--
+README:
+1. Поместите tickets.json в ту же папку, что и index.html.
+2. Для корректной работы fetch используйте относительный путь: fetch('./tickets.json')
+3. Для публикации на GitHub Pages:
+   - Создайте репозиторий, добавьте index.html и tickets.json
+   - В настройках репозитория включите GitHub Pages (ветка main, папка root)
+   - Откройте сайт по выданной ссылке
+4. Если fetch не работает из-за CORS при локальном открытии файла, используйте GitHub Pages или локальный сервер (например, Live Server в VS Code).
+-->
