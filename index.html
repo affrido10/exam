@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketsFinder — современный поиск билетов</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#f8f9fa',
+                            DEFAULT: '#f1f3f5',
+                            dark: '#e9ecef',
+                        },
+                        accent: {
+                            light: '#2998ff',
+                            DEFAULT: '#0071e3',
+                            dark: '#0062c4',
+                        }
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .search-shadow {
+            box-shadow: 0 4px 30px rgba(0, 113, 227, 0.15);
+        }
+        
+        .ticket-card {
+            transition: all 0.3s ease;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(0, 113, 227, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-primary-light min-h-screen font-sans antialiased">
+    <!-- Header -->
+    <header class="bg-white sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-accent-DEFAULT flex items-center justify-center">
+                        <i class="fas fa-ticket-alt text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-800">TicketsFinder</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-accent-DEFAULT transition">Главная</a>
+                    <a href="#" class="text-gray-600 hover:text-accent-DEFAULT transition">События</a>
+                    <a href="#" class="text-gray-600 hover:text-accent-DEFAULT transition">Помощь</a>
+                    <a href="#" class="text-gray-600 hover:text-accent-DEFAULT transition">Контакты</a>
+                </nav>
+                <button class="md:hidden text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-accent-DEFAULT/10 to-transparent z-0"></div>
+        <div class="container mx-auto px-6 py-20 relative z-10">
+            <div class="max-w-3xl mx-auto text-center fade-in">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Найдите свои билеты легко</h1>
+                <p class="text-xl text-gray-600 mb-10">Современный поиск по ключевым фразам или номеру билета</p>
+                
+                <!-- Search Box -->
+                <div class="bg-white rounded-2xl p-2 search-shadow max-w-2xl mx-auto mb-16">
+                    <div class="flex">
+                        <div class="relative flex-1">
+                            <input type="text" id="searchInput" placeholder="Введите ключевые слова или номер билета..." 
+                                   class="w-full px-5 py-4 rounded-xl border-0 focus:ring-2 focus:ring-accent-DEFAULT text-gray-700">
+                            <button id="searchButton" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-accent-DEFAULT">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <button id="searchSubmit" class="ml-2 bg-accent-DEFAULT hover:bg-accent-dark text-white px-6 py-4 rounded-xl font-medium transition whitespace-nowrap">
+                            Найти билеты
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button class="px-5 py-2 bg-white rounded-full text-sm font-medium border border-gray-200 hover:border-accent-DEFAULT hover:text-accent-DEFAULT transition">
+                        <i class="fas fa-music mr-2"></i> Концерты
+                    </button>
+                    <button class="px-5 py-2 bg-white rounded-full text-sm font-medium border border-gray-200 hover:border-accent-DEFAULT hover:text-accent-DEFAULT transition">
+                        <i class="fas fa-theater-masks mr-2"></i> Театры
+                    </button>
+                    <button class="px-5 py-2 bg-white rounded-full text-sm font-medium border border-gray-200 hover:border-accent-DEFAULT hover:text-accent-DEFAULT transition">
+                        <i class="fas fa-futbol mr-2"></i> Спорт
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="bg-white py-16">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-16">Как это работает</h2>
+            
+            <div class="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+                <div class="text-center fade-in" style="animation-delay: 0.1s">
+                    <div class="w-20 h-20 bg-accent-DEFAULT/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-accent-DEFAULT text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">1. Поиск</h3>
+                    <p class="text-gray-600">Введите ключевые слова (название события, артиста) или номер билета</p>
+                </div>
+                
+                <div class="text-center fade-in" style="animation-delay: 0.3s">
+                    <div class="w-20 h-20 bg-accent-DEFAULT/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-list-ul text-accent-DEFAULT text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">2. Результаты</h3>
+                    <p class="text-gray-600">Получите список подходящих билетов с подробной информацией</p>
+                </div>
+                
+                <div class="text-center fade-in" style="animation-delay: 0.5s">
+                    <div class="w-20 h-20 bg-accent-DEFAULT/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-ticket-alt text-accent-DEFAULT text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">3. Получите билет</h3>
+                    <p class="text-gray-600 mb-4">Выберите подходящий вариант и получите билет удобным способом</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results (Hidden by default) -->
+    <section id="resultsSection" class="hidden bg-primary-dark py-16">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-2xl font-bold text-gray-900">Результаты поиска</h2>
+                <div class="text-gray-600">Найдено <span id="resultsCount" class="font-semibold">3</span> билета</div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Ticket Card 1 -->
+                <div class="ticket-card bg-white rounded-2xl overflow-hidden fade-in">
+                    <div class="relative">
+                        <img src="https://source.unsplash.com/random/600x400/?concert" alt="Concert" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
+                            <i class="fas fa-music text-accent-DEFAULT mr-1"></i> Концерт
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold">The Weeknd Tour</h3>
+                            <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Есть билеты</div>
+                        </div>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-calendar-alt mr-2 text-gray-400"></i> 15 июля 2023, 20:00</p>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i> Москва, ВТБ Арена</p>
+                        
+                        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                            <div>
+                                <span class="text-sm text-gray-500">от</span>
+                                <span class="text-xl font-bold text-accent-DEFAULT ml-1">5 990 ₽</span>
+                            </div>
+                            <button class="text-accent-DEFAULT font-medium hover:text-accent-dark transition">
+                                Подробнее <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ticket Card 2 -->
+                <div class="ticket-card bg-white rounded-2xl overflow-hidden fade-in" style="animation-delay: 0.2s">
+                    <div class="relative">
+                        <img src="https://source.unsplash.com/random/600x400/?football" alt="Football" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
+                            <i class="fas fa-futbol text-accent-DEFAULT mr-1"></i> Спорт
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold">Футбол: ЦСКА - Зенит</h3>
+                            <div class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Мало билетов</div>
+                        </div>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-calendar-alt mr-2 text-gray-400"></i> 22 июля 2023, 19:30</p>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i> Москва, ВЭБ Арена</p>
+                        
+                        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                            <div>
+                                <span class="text-sm text-gray-500">от</span>
+                                <span class="text-xl font-bold text-accent-DEFAULT ml-1">3 500 ₽</span>
+                            </div>
+                            <button class="text-accent-DEFAULT font-medium hover:text-accent-dark transition">
+                                Подробнее <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ticket Card 3 -->
+                <div class="ticket-card bg-white rounded-2xl overflow-hidden fade-in" style="animation-delay: 0.4s">
+                    <div class="relative">
+                        <img src="https://source.unsplash.com/random/600x400/?theater" alt="Theater" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
+                            <i class="fas fa-theater-masks text-accent-DEFAULT mr-1"></i> Театр
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold">"Чайка" в МХТ</h3>
+                            <div class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Почти нет билетов</div>
+                        </div>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-calendar-alt mr-2 text-gray-400"></i> 30 июля 2023, 19:00</p>
+                        <p class="text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i> Москва, МХТ им. Чехова</p>
+                        
+                        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                            <div>
+                                <span class="text-sm text-gray-500">от</span>
+                                <span class="text-xl font-bold text-accent-DEFAULT ml-1">7 200 ₽</span>
+                            </div>
+                            <button class="text-accent-DEFAULT font-medium hover:text-accent-dark transition">
+                                Подробнее <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 text-center">
+                <button class="px-6 py-3 bg-white text-accent-DEFAULT font-medium rounded-xl border border-gray-200 hover:border-accent-DEFAULT hover:bg-accent-DEFAULT/5 transition">
+                    Показать еще
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ticket by Number (Hidden by default) -->
+    <section id="ticketByNumberSection" class="hidden bg-primary-dark py-16">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="bg-white rounded-2xl overflow-hidden fade-in">
+                <div class="p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mr-4">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">Билет найден</h2>
+                            <p class="text-gray-600">Вот информация о вашем билете</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Детали билета</h3>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <div class="w-32 text-gray-500">Номер:</div>
+                                    <div class="font-medium">#TB-2847392</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-32 text-gray-500">Событие:</div>
+                                    <div class="font-medium">The Weeknd Tour</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-32 text-gray-500">Дата:</div>
+                                    <div class="font-medium">15 июля 2023, 20:00</div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-32 text-gray-500">Место:</div>
+                                    <div class="font-medium">Сектор A, Ряд 12, Место 34</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">QR-код</h3>
+                            <div class="bg-gray-100 rounded-xl p-4 flex items-center justify-center">
+                                <div class="w-40 h-40 bg-white rounded flex items-center justify-center glow">
+                                    <i class="fas fa-qrcode text-5xl text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-gray-100">
+                        <h3 class="text-lg font-semibold mb-4">Инструкции</h3>
+                        <div class="bg-blue-50 rounded-xl p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="text-blue-800">Распечатайте этот билет или сохраните его на телефоне. При входе на мероприятие покажите QR-код для сканирования.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-8 py-6 flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-600 mb-1">Есть вопросы?</p>
+                        <a href="#" class="text-accent-DEFAULT font-medium hover:text-accent-dark transition">
+                            Свяжитесь с поддержкой <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                    <button class="px-6 py-3 bg-accent-DEFAULT hover:bg-accent-dark text-white font-medium rounded-xl transition">
+                        <i class="fas fa-download mr-2"></i> Скачать билет
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-16">Почему выбирают нас</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                <div class="flex fade-in">
+                    <div class="w-14 h-14 rounded-xl bg-accent-DEFAULT/10 flex items-center justify-center mr-6 flex-shrink-0">
+                        <i class="fas fa-bolt text-accent-DEFAULT text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Мгновенный поиск</h3>
+                        <p class="text-gray-600">Наша система находит билеты по всей базе данных за доли секунды, экономя ваше время.</p>
+                    </div>
+                </div>
+                
+                <div class="flex fade-in" style="animation-delay: 0.2s">
+                    <div class="w-14 h-14 rounded-xl bg-accent-DEFAULT/10 flex items-center justify-center mr-6 flex-shrink-0">
+                        <i class="fas fa-shield-alt text-accent-DEFAULT text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Гарантия подлинности</h3>
+                        <p class="text-gray-600">Все билеты проходят проверку на подлинность. Мы гарантируем безопасность каждой покупки.</p>
+                    </div>
+                </div>
+                
+                <div class="flex fade-in" style="animation-delay: 0.4s">
+                    <div class="w-14 h-14 rounded-xl bg-accent-DEFAULT/10 flex items-center justify-center mr-6 flex-shrink-0">
+                        <i class="fas fa-mobile-alt text-accent-DEFAULT text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Мобильный билет</h3>
+                        <p class="text-gray-600">Получайте билеты прямо на телефон и не беспокойтесь о бумажных копиях.</p>
+                    </div>
+                </div>
+                
+                <div class="flex fade-in" style="animation-delay: 0.6s">
+                    <div class="w-14 h-14 rounded-xl bg-accent-DEFAULT/10 flex items-center justify-center mr-6 flex-shrink-0">
+                        <i class="fas fa-headset text-accent-DEFAULT text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Поддержка 24/7</h3>
+                        <p class="text-gray-600">Наша служба поддержки всегда готова помочь с любыми вопросами.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-10 mb-12">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-accent-DEFAULT flex items-center justify-center">
+                            <i class="fas fa-ticket-alt text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-semibold">TicketsFinder</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Современный сервис для поиска и покупки билетов на любые мероприятия.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Компания</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">О нас</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Карьера</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Блог</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Партнеры</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Помощь</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Центр поддержки</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Безопасность</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Возврат билетов</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-map-marker-alt mr-3 text-gray-500"></i> Москва, ул. Примерная, 15
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-phone-alt mr-3 text-gray-500"></i> +7 (495) 123-45-67
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope mr-3 text-gray-500"></i> info@ticketsfinder.ru
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">© 2023 TicketsFinder. Все права защищены.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-gray-400 transition">Условия</a>
+                    <a href="#" class="text-gray-500 hover:text-gray-400 transition">Конфиденциальность</a>
+                    <a href="#" class="text-gray-500 hover:text-gray-400 transition">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--
+    README:
+    1. Переименуйте этот файл в index.html для публикации на GitHub Pages.
+    2. Поместите файл tickets.json в ту же папку, что и index.html.
+    3. Для корректной работы fetch используйте относительный путь: fetch('./tickets.json')
+    4. Для публикации на GitHub Pages:
+       - Создайте репозиторий, добавьте index.html и tickets.json
+       - В настройках репозитория включите GitHub Pages (ветка main, папка root)
+       - Откройте сайт по выданной ссылке
+    5. Если fetch не работает из-за CORS при локальном открытии файла, используйте GitHub Pages или локальный сервер (например, Live Server в VS Code).
+    -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let ticketsData = [];
+            // Загрузка данных из JSON
+            fetch('tickets.json')
+                .then(response => response.json())
+                .then(data => {
+                    ticketsData = data;
+                });
+
+            const searchButton = document.getElementById('searchButton');
+            const searchSubmit = document.getElementById('searchSubmit');
+            const searchInput = document.getElementById('searchInput');
+            const resultsSection = document.getElementById('resultsSection');
+            const ticketByNumberSection = document.getElementById('ticketByNumberSection');
+            const resultsGrid = resultsSection ? resultsSection.querySelector('.grid') : null;
+            const ticketDetails = ticketByNumberSection ? ticketByNumberSection.querySelector('.space-y-3') : null;
+
+            function renderResults(results) {
+                if (!resultsGrid) return;
+                resultsGrid.innerHTML = '';
+                results.forEach(ticket => {
+                    const card = document.createElement('div');
+                    card.className = 'ticket-card bg-white rounded-2xl overflow-hidden fade-in';
+                    card.innerHTML = `
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold">${ticket["Вопрос"] || 'Билет'}</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4"><b>Ответ:</b> ${ticket["Ответ"] || ''}</p>
+                        </div>
+                    `;
+                    resultsGrid.appendChild(card);
+                });
+            }
+
+            function renderTicketDetails(ticket) {
+                if (!ticketDetails) return;
+                ticketDetails.innerHTML = '';
+                ticketDetails.innerHTML += `<div class="flex"><b>Вопрос:</b>&nbsp;${ticket["Вопрос"] || ''}</div>`;
+                ticketDetails.innerHTML += `<div class="flex"><b>Ответ:</b>&nbsp;${ticket["Ответ"] || ''}</div>`;
+            }
+
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query === '') return;
+                resultsSection.classList.add('hidden');
+                ticketByNumberSection.classList.add('hidden');
+                let found = [];
+                // Поиск по номеру билета
+                if (query.includes('#') || query.includes('TB-') || /^\d+$/.test(query)) {
+                    let num = query.replace(/[^\d]/g, '');
+                    found = ticketsData.filter(t => String(t["№"]).replace(/[^\d]/g, '') === num);
+                    if (found.length > 0) {
+                        renderTicketDetails(found[0]);
+                        ticketByNumberSection.classList.remove('hidden');
+                    } else {
+                        ticketDetails.innerHTML = '<div>Билет не найден</div>';
+                        ticketByNumberSection.classList.remove('hidden');
+                    }
+                } else {
+                    // Поиск по тексту вопроса/ответа
+                    found = ticketsData.filter(t =>
+                        (t["Вопрос"] && t["Вопрос"].toLowerCase().includes(query.toLowerCase())) ||
+                        (t["Ответ"] && t["Ответ"].toLowerCase().includes(query.toLowerCase()))
+                    );
+                    renderResults(found);
+                    resultsSection.classList.remove('hidden');
+                    document.getElementById('resultsCount').textContent = found.length;
+                }
+                setTimeout(() => {
+                    if (query.includes('#') || query.includes('TB-') || /^\d+$/.test(query)) {
+                        ticketByNumberSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+
+            searchButton.addEventListener('click', performSearch);
+            searchSubmit.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Animate elements on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            fadeElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
